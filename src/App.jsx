@@ -5,6 +5,7 @@ import AnalysisResults from './components/AnalysisResults';
 import AnimatedBackground from './components/AnimatedBackground';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
+import { startKeepAlive } from './utils/keepAlive';
 import './App.css';
 
 function App() {
@@ -21,6 +22,11 @@ function App() {
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Keep backend alive
+  useEffect(() => {
+    startKeepAlive();
   }, []);
 
   const handleAnalyze = async (code, language) => {
