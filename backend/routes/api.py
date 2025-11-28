@@ -134,21 +134,30 @@ async def analyze_code(
                 logger.info("Returning cached analysis result")
                 return CodeAnalysisResponse(**cached_result)
         
-        # Execute code if requested
-        execution_result = None
+        # Execution result will be set above if requested
+        if not analysis_request.execute:
+            execution_result = None
+        
+        # Run static analysis first (fast), then AI analysis
+        import asyncio
+        
+        # Static analysis is fast, run it first
+        static_results = await static_analyzer.analyze(analysis_request.code, detected_language)
+        logger.info("Static analysis completed")
+        
+        # AI analysis in parallel with execution for speed
+        ai_task = asyncio.create_task(ai_analyzer.analyze(analysis_request.code, detected_language))
+        
+        # If execution is requested, run it while AI analysis is happening
         if analysis_request.execute:
             logger.info("Executing code...")
             exec_data = await code_executor.execute(analysis_request.code, detected_language)
             execution_result = ExecutionResult(**exec_data)
             logger.info(f"Code execution completed: {execution_result.success}")
         
-        # Run static and AI analysis in parallel for better performance
-        import asyncio
-        static_task = static_analyzer.analyze(analysis_request.code, detected_language)
-        ai_task = ai_analyzer.analyze(analysis_request.code, detected_language)
-        
-        static_results, ai_results = await asyncio.gather(static_task, ai_task)
-        logger.info("Static and AI analysis completed")
+        # Wait for AI analysis to complete
+        ai_results = await ai_task
+        logger.info("AI analysis completed")
         
         # Calculate overall score
         overall_score = calculate_overall_score(static_results, ai_results)

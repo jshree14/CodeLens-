@@ -434,49 +434,54 @@ class CodeExecutor:
             }
     
     async def _execute_java_online(self, code: str) -> Dict[str, Any]:
-        """Execute Java code using online compiler as fallback"""
+        """Execute Java code using Piston API (free, no auth required)"""
         import time
-        import aiohttp
+        import httpx
         
         start_time = time.time()
         
         try:
-            # Use JDoodle API for Java execution
-            async with aiohttp.ClientSession() as session:
+            # Use Piston API - free and no auth required
+            async with httpx.AsyncClient(timeout=15.0) as client:
                 payload = {
-                    "script": code,
                     "language": "java",
-                    "versionIndex": "4",
-                    "clientId": "your_client_id",  # Free tier
-                    "clientSecret": "your_client_secret"
+                    "version": "15.0.2",
+                    "files": [{
+                        "content": code
+                    }]
                 }
                 
-                async with session.post(
-                    "https://api.jdoodle.com/v1/execute",
-                    json=payload,
-                    timeout=aiohttp.ClientTimeout(total=10)
-                ) as response:
-                    if response.status == 200:
-                        result = await response.json()
-                        execution_time = time.time() - start_time
-                        
-                        return {
-                            "output": result.get("output", "").strip(),
-                            "error": result.get("error", "").strip() if result.get("statusCode") != 200 else "",
-                            "execution_time": round(execution_time, 3),
-                            "success": result.get("statusCode") == 200
-                        }
-                    else:
-                        return {
-                            "output": "",
-                            "error": "Online Java compiler unavailable",
-                            "execution_time": time.time() - start_time,
-                            "success": False
-                        }
+                response = await client.post(
+                    "https://emkc.org/api/v2/piston/execute",
+                    json=payload
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    execution_time = time.time() - start_time
+                    
+                    run_data = result.get("run", {})
+                    output = run_data.get("output", "").strip()
+                    stderr = run_data.get("stderr", "").strip()
+                    
+                    return {
+                        "output": output if output else "",
+                        "error": stderr if stderr else "",
+                        "execution_time": round(execution_time, 3),
+                        "success": run_data.get("code", 1) == 0
+                    }
+                else:
+                    return {
+                        "output": "",
+                        "error": "Online Java compiler unavailable. Please try again.",
+                        "execution_time": time.time() - start_time,
+                        "success": False
+                    }
         except Exception as e:
+            logger.error(f"Online Java execution failed: {e}")
             return {
                 "output": "",
-                "error": f"Online execution failed: {str(e)}",
+                "error": f"Java execution unavailable: {str(e)}",
                 "execution_time": time.time() - start_time,
                 "success": False
             }
