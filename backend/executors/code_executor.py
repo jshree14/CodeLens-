@@ -433,6 +433,54 @@ class CodeExecutor:
                 "success": False
             }
     
+    async def _execute_java_online(self, code: str) -> Dict[str, Any]:
+        """Execute Java code using online compiler as fallback"""
+        import time
+        import aiohttp
+        
+        start_time = time.time()
+        
+        try:
+            # Use JDoodle API for Java execution
+            async with aiohttp.ClientSession() as session:
+                payload = {
+                    "script": code,
+                    "language": "java",
+                    "versionIndex": "4",
+                    "clientId": "your_client_id",  # Free tier
+                    "clientSecret": "your_client_secret"
+                }
+                
+                async with session.post(
+                    "https://api.jdoodle.com/v1/execute",
+                    json=payload,
+                    timeout=aiohttp.ClientTimeout(total=10)
+                ) as response:
+                    if response.status == 200:
+                        result = await response.json()
+                        execution_time = time.time() - start_time
+                        
+                        return {
+                            "output": result.get("output", "").strip(),
+                            "error": result.get("error", "").strip() if result.get("statusCode") != 200 else "",
+                            "execution_time": round(execution_time, 3),
+                            "success": result.get("statusCode") == 200
+                        }
+                    else:
+                        return {
+                            "output": "",
+                            "error": "Online Java compiler unavailable",
+                            "execution_time": time.time() - start_time,
+                            "success": False
+                        }
+        except Exception as e:
+            return {
+                "output": "",
+                "error": f"Online execution failed: {str(e)}",
+                "execution_time": time.time() - start_time,
+                "success": False
+            }
+    
     async def _execute_java(self, code: str) -> Dict[str, Any]:
         """Execute Java code"""
         import time
@@ -544,12 +592,9 @@ class CodeExecutor:
                     pass
                     
         except FileNotFoundError:
-            return {
-                "output": "",
-                "error": "Java compiler not found. Please install JDK to execute Java code.",
-                "execution_time": 0,
-                "success": False
-            }
+            # Fallback to online compiler
+            logger.info("Java not found locally, using online compiler")
+            return await self._execute_java_online(code)
         except Exception as e:
             logger.error(f"Java execution error: {e}", exc_info=True)
             return {
