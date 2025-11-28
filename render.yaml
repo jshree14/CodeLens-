@@ -1,0 +1,34 @@
+services:
+  # Backend API Service
+  - type: web
+    name: codelens-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MONGODB_URL
+        sync: false
+      - key: DATABASE_NAME
+        value: codelens_ai
+      - key: DEBUG
+        value: False
+      - key: CORS_ORIGINS
+        value: https://codelens-frontend.onrender.com
+
+  # Frontend Service
+  - type: web
+    name: codelens-frontend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: 18.0.0
