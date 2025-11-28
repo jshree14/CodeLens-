@@ -415,7 +415,7 @@ class CodeExecutor:
                 os.unlink(temp_file)
             return {
                 "output": "",
-                "error": "Node.js not found. Please install Node.js to execute JavaScript code.",
+                "error": "⚠️ JavaScript execution is currently unavailable on this server. Code analysis will still work, but execution is disabled for JavaScript.",
                 "execution_time": 0,
                 "success": False
             }
@@ -546,7 +546,7 @@ class CodeExecutor:
         except FileNotFoundError:
             return {
                 "output": "",
-                "error": "Java compiler not found. Please install JDK to execute Java code.",
+                "error": "⚠️ Java execution is currently unavailable on this server. Code analysis will still work, but execution is disabled for Java.",
                 "execution_time": 0,
                 "success": False
             }
@@ -671,7 +671,7 @@ class CodeExecutor:
                 os.unlink(exe_file)
             return {
                 "output": "",
-                "error": "C++ compiler not found. Please install g++ to execute C++ code.",
+                "error": "⚠️ C++ execution is currently unavailable on this server. Code analysis will still work, but execution is disabled for C++.",
                 "execution_time": 0,
                 "success": False
             }

@@ -331,11 +331,40 @@ async def health_check():
     Health check endpoint
     """
     cache_stats = analysis_cache.stats()
+    
+    # Check available compilers
+    import subprocess
+    compilers = {
+        "python": True,  # Always available
+        "java": False,
+        "javascript": False,
+        "cpp": False
+    }
+    
+    try:
+        subprocess.run(['java', '-version'], capture_output=True, timeout=1)
+        compilers["java"] = True
+    except:
+        pass
+    
+    try:
+        subprocess.run(['node', '--version'], capture_output=True, timeout=1)
+        compilers["javascript"] = True
+    except:
+        pass
+    
+    try:
+        subprocess.run(['g++', '--version'], capture_output=True, timeout=1)
+        compilers["cpp"] = True
+    except:
+        pass
+    
     return {
         "status": "healthy",
         "message": "CodeLens AI API is running",
         "version": "1.0.0",
-        "cache": cache_stats
+        "cache": cache_stats,
+        "compilers": compilers
     }
 
 @router.get("/cache/stats")
