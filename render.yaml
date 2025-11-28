@@ -22,13 +22,10 @@ services:
         value: https://codelens-frontend-vfd3.onrender.com
 
   # Frontend Service
-  - type: web
+  - type: static
     name: codelens-frontend
     env: static
     region: oregon
     plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
-    envVars:
-      - key: NODE_VERSION
-        value: 18.0.0
