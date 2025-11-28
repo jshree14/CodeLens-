@@ -57,12 +57,7 @@ app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # React dev server
-        "http://localhost:5173",  # Vite dev server
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-        "https://codelens-frontend-vfd3.onrender.com",  # Production frontend
-        "https://codelens-frontend-vfd3.onrender.com/"  # With trailing slash
+        "*"  # Allow all origins for now
     ],
     allow_credentials=True,
     allow_methods=["*"],

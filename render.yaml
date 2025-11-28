@@ -24,13 +24,11 @@ services:
   # Frontend Service
   - type: web
     name: codelens-frontend
-    env: node
+    env: static
     region: oregon
     plan: free
     buildCommand: npm install && npm run build
-    startCommand: PORT=$PORT npm run serve
+    staticPublishPath: ./dist
     envVars:
       - key: NODE_VERSION
         value: 18.0.0
-      - key: VITE_API_URL
-        value: https://codelens-backend-lyab.onrender.com
