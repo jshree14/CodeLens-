@@ -14,11 +14,8 @@ export default defineConfig({
   },
   preview: {
     host: '0.0.0.0',
-    port: process.env.PORT || 3000,
+    port: parseInt(process.env.PORT) || 3000,
     strictPort: false,
-    allowedHosts: [
-      'codelens-frontend-vfd3.onrender.com',
-      '.onrender.com'
-    ]
+    allowedHosts: ['all']
   }
 })

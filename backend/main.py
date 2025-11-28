@@ -62,7 +62,7 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
         "https://codelens-frontend-vfd3.onrender.com",  # Production frontend
-        "https://*.onrender.com"  # All Render domains
+        "https://codelens-frontend-vfd3.onrender.com/"  # With trailing slash
     ],
     allow_credentials=True,
     allow_methods=["*"],
