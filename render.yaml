@@ -19,7 +19,7 @@ services:
       - key: DEBUG
         value: False
       - key: CORS_ORIGINS
-        value: https://codelens-frontend.onrender.com
+        value: https://codelens-frontend-vfd3.onrender.com
 
   # Frontend Service
   - type: web
@@ -32,3 +32,5 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 18.0.0
+      - key: VITE_API_URL
+        value: https://codelens-backend-lyab.onrender.com
